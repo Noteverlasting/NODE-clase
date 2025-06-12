@@ -36,28 +36,7 @@ pizzas.forEach((pizza, index) => {
 console.log("\x1b[32mIndica el numero una pizza para pedirla__\x1b[0m");
 } else {
 
-// *** CODIGO COLOR RESET = \x1b[0m
-// *** CODIGO COLOR NEGRITA = \x1b[1m
-// *** CODIGO COLOR SUBRAYADO = \x1b[4m
-// *** CODIGO COLOR ROJO =  \x1b[31m
-// *** CODIGO COLOR VERDE = \x1b[32m
-// *** CODIGO COLOR AMARILLO = \x1b[33m
-// *** CODIGO COLOR AZUL = \x1b[34m
-// *** CODIGO COLOR MAGENTA = \x1b[35m
-// *** CODIGO COLOR CIAN = \x1b[36m
-// *** CODIGO COLOR BLANCO = \x1b[37m
-// *** CODIGO COLOR NEGRITA ROJO = \x1b[1;31m
-// *** CODIGO COLOR NEGRITA VERDE = \x1b[1;32m
-/*
-'\x1b[90m' // Gris brillante
-'\x1b[91m' // Rojo brillante
-'\x1b[92m' // Verde brillante
-'\x1b[93m' // Amarillo brillante
-'\x1b[94m' // Azul brillante
-'\x1b[95m' // Magenta brillante
-'\x1b[96m' // Cian brillante
-'\x1b[97m' // Blanco brillante
-*/
+
 
 
 
