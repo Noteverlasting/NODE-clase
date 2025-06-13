@@ -1,0 +1,22 @@
+{
+  "usuarios": [
+    {
+      "nombre": "antonio",
+      "apellido": "pachin",
+      "idioma": "inglés",
+      "color": "rojo"
+    },
+    {
+      "nombre": "antonia",
+      "apellido": "pachan",
+      "idioma": "castellano",
+      "color": "azul"
+    },
+    {
+      "nombre": "antonieta",
+      "apellido": "patum",
+      "idioma": "català",
+      "color": "amarillo"
+    }
+  ]
+}

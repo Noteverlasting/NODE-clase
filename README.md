@@ -11,6 +11,7 @@
 ‘\x1b[7m’   // Invertir colores (fondo/primer plano)<br>
 ‘\x1b[9m’   // Tachado<br><br>
 **–Colores Basicos**<br>
+
 ‘\x1b[31m’  // Color Rojo<br>
 ‘\x1b[32m’  // Color Verde<br>
 ‘\x1b[33m’  // Color Amarillo<br>
@@ -58,3 +59,6 @@
 ‘\x1b[45m’  // Fondo magenta<br>
 ‘\x1b[46m’  // Fondo cyan<br>
 ‘\x1b[47m’  // Fondo blanco</p>
+
+
+

@@ -113,27 +113,27 @@ ${verde}ESCUELA - Sistema de Gestión de Alumnos
 ${amarillo}Comandos disponibles:
 
 1. Matricular alumno:${reset}
-   node escuela.js nombre apellido edad asignatura
-   ${verde}Ejemplo: node escuela.js Anna-Maria Garcia 20 Matematicas${reset}
+   node 10_escuela.js nombre apellido edad asignatura
+   ${verde}Ejemplo: node 10_escuela.js Anna-Maria Garcia 20 Matematicas${reset}
 
 ${amarillo}2. Borrar alumno:${reset}
-   node escuela.js nombre apellido -1
-   ${verde}Ejemplo: node escuela.js Anna-Maria Garcia -1${reset}
+   node 10_escuela.js nombre apellido -1
+   ${verde}Ejemplo: node 10_escuela.js Anna-Maria Garcia -1${reset}
 
 ${amarillo}3. Buscar alumno:${reset}
-   node escuela.js nombre apellido
-   ${verde}Ejemplo: node escuela.js Anna-Maria Garcia${reset}
+   node 10_escuela.js nombre apellido
+   ${verde}Ejemplo: node 10_escuela.js Anna-Maria Garcia${reset}
 
 ${amarillo}4. Ver alumnos por asignatura:${reset}
-   node escuela.js asignatura
-   ${verde}Ejemplo: node escuela.js Matematicas${reset}
+   node 10_escuela.js asignatura
+   ${verde}Ejemplo: node 10_escuela.js Matematicas${reset}
 
 ${amarillo}5. Ver todos los alumnos:${reset}
-   node escuela.js
+   node 10_escuela.js
 
 ${amarillo}6. Mostrar esta ayuda:${reset}
-   node escuela.js --help
-   node escuela.js --menu
+   node 10_escuela.js --help
+   node 10_escuela.js --menu
 
 ${azul}Nota: Los nombres compuestos deben escribirse con guión (Anna-Maria)${reset}
 `;
@@ -169,26 +169,30 @@ else if (args.length === 4) {
 }
 
 // CASO 2 (3 argumentos, el último es "-1")
-// Borrar alumno
+// Borrar alumno(s)
 else if (args.length === 3 && args[2] === "-1") {
-  let encontrado = false
-  // Recorremos la lista buscando el índice del alumno
-  for (let i = 0; i < datos.alumnos.length; i++) {
-    let alumno = datos.alumnos[i]
-    // Si encontramos al alumno lo borramos directamente usando splice
-    if (alumno.nombre === args[0] && alumno.apellido === args[1]) {
-      datos.alumnos.splice(i, 1)
-      encontrado = true
-      break; // Salimos del bucle porque ya lo encontramos
+  let nombreABorrar = args[0];
+  let apellidoABorrar = args[1];
+  let nuevosAlumnos = []; // Lista donde guardamos los alumnos que se quedan
+  let eliminados = 0;     // Contador de eliminados
+
+  // Recorremos cada alumno
+  for (let alumno of datos.alumnos) {
+    if (alumno.nombre === nombreABorrar && alumno.apellido === apellidoABorrar) {
+      eliminados++; // Coincide: lo eliminamos (no lo agregamos a la lista nueva)
+    } else {
+      nuevosAlumnos.push(alumno); // No coincide: lo mantenemos
     }
   }
-  // Si se ha encontrado al alumno, guardamos los cambios en el archivo JSON y mostramos confirmación por teminal.
-  if (encontrado) {
+
+  // Reemplazamos la lista original con la nueva
+  datos.alumnos = nuevosAlumnos;
+
+  if (eliminados > 0) {
     guardarDatos();
-    console.log(`Alumno ${args[0]} ${args[1]} eliminado`)
-    // Si no, mostramos un mensaje de error.
+    console.log(`Se eliminaron ${eliminados} coindicencias de alumno(s) llamados ${nombreABorrar} ${apellidoABorrar}`);
   } else {
-    console.log("No tenemos matriculado a ese alumno")
+    console.log("No tenemos matriculado a ese alumno");
   }
 }
 
@@ -272,6 +276,6 @@ else if (args.length === 0) {
 
 // Si hubiese cualquier otro error, mostraremos que el comando no es válido y a continuación mostramos tambien el menu de ayuda.
 } else {
-  console.log("Error: Comando no valido")
+  console.log("\n\x1b[1;31mError: Comando no valido")
   mostrarAyuda();
 }
