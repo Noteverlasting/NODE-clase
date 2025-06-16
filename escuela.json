@@ -17,6 +17,18 @@
       "apellido": "machin",
       "edad": 15,
       "asignatura": "lengua"
+    },
+    {
+      "nombre": "antonio",
+      "apellido": "machin",
+      "edad": 15,
+      "asignatura": "matematicas"
+    },
+    {
+      "nombre": "antonio",
+      "apellido": "machin",
+      "edad": 15,
+      "asignatura": "lengua"
     }
   ]
 }

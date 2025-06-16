@@ -167,6 +167,4 @@ switch (args.length) {
     guarDatos();
     console.log(`Usuario ${nuevoUsuario.nombre} ${nuevoUsuario.apellido} matriculado/a`);
     break;
-
 }
-    

@@ -76,74 +76,163 @@ http://localhost:4000/asignatura <- alumnos de una asignatura
 const fs = require("node:fs");
 const http = require('node:http');
 
+// Creamos una variable para almacenar los datos leidos desde escuela.json
 const datos = JSON.parse(fs.readFileSync('./escuela.json', 'utf8'));
 
+function generarHTML(titulo, contenido) {
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${titulo}</title>
+        <style>
+          .alumno { 
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            list-style: none;
+          }
+        </style>
+    </head>
+    <body>
+        <h1>${titulo}</h1>
+        <nav>
+          <a href="/">Inicio</a>
+        </nav>
+        ${contenido}
+    </body>
+    </html>
+  `;
+}
 
-// Creamos otra funcion para que si en el terminal se escribe alguna opcion como --help o --menu, se muestre un menu explicativo.
-function mostrarAyuda() {
-  const ayuda = {
-    rutas: {
-      "/": "Muestra esta ayuda y lista todos los alumnos",
-      "/asignatura": "Filtra alumnos por asignatura (ej: /matematicas)",
-      "/nombre/apellido": "Busca un alumno específico (ej: /Juan/Perez)"
-    },
-    ejemplos: {
-      "Lista completa": "http://localhost:4000/",
-      "Filtrar por asignatura": "http://localhost:4000/matematicas",
-      "Buscar alumno": "http://localhost:4000/Juan/Perez"
+function renderizarListaAlumnos(alumnos) {
+    if (!alumnos || alumnos.length === 0) return '<p>No se encontraron alumnos</p>' 
+
+    let html = '<ul>';
+    let alumnosUnicos = {};
+
+    // Agrupar por nombre y apellido
+    for(let alumno of alumnos) {
+        let id = alumno.nombre + alumno.apellido;
+        if (!alumnosUnicos[id]) {
+            alumnosUnicos[id] = {
+                nombre: alumno.nombre,
+                apellido: alumno.apellido,
+                edad: alumno.edad,
+                asignaturas: [alumno.asignatura]
+            };
+        } else {
+            // Solo añadir asignatura si no está ya incluida
+            if (!alumnosUnicos[id].asignaturas.includes(alumno.asignatura)) {
+                alumnosUnicos[id].asignaturas.push(alumno.asignatura);
+            }
+        }
     }
-  };
+
+    // Crear entrada HTML para cada alumno único
+    for(let id in alumnosUnicos) {
+        let alumno = alumnosUnicos[id];
+        html += `
+            <li class="alumno">
+                <strong>Nombre:</strong> ${alumno.nombre}<br>
+                <strong>Apellido:</strong> ${alumno.apellido}<br>
+                <strong>Edad:</strong> ${alumno.edad}<br>
+                <strong>Asignaturas:</strong> ${alumno.asignaturas.toString()}
+            </li>
+        `;
+    }
+    
+    html += '</ul>';
+    return html;
+}
+
+// Creamos otra funcion para que si en el navegador no se escribe nada, se muestre un menu explicativo.
+function mostrarAyuda() {
+  const ayuda = `
+    <h2>Rutas disponibles:</h2>
+    <ul> 
+      <li>"/": "Muestra esta ayuda y lista todos los alumnos"</li>
+      <li>"/asignatura": "Filtra alumnos por asignatura (ej: /matematicas)"</li>
+      <li>"/nombre/apellido": "Busca un alumno específico (ej: /Juan/Perez)"</li>
+    </ul>
+    <h2>ejemplos:</h2>
+    <ul> 
+      <li>"Lista completa": "http://localhost:4000/"</li>
+      <li>"Filtrar por asignatura": "http://localhost:4000/matematicas"</li>
+      <li>"Buscar alumno": "http://localhost:4000/Juan/Perez"</li>
+    </ul>
+  `;
   return ayuda;
 }
 
 // Iniciar servidor web
 const server = http.createServer((req, res) => {
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'text/html');
   const path = req.url.substring(1).split('/');
 
-  try {
-    // Ruta principal
-    if (req.url === '/') {
-      const ayuda = mostrarAyuda();
-      res.end(JSON.stringify({ayuda: ayuda, datos: datos.alumnos}, null, 2));
-      return;
-    }
+    try {
+        if (req.url === '/') {
+            const alumnosOrdenados = [...datos.alumnos].sort((a, b) => 
+                a.apellido.localeCompare(b.apellido, 'es')
+            );
+            
+            const contenido = `
+                ${mostrarAyuda()}
+                <h2>Lista de Alumnos</h2>
+                ${renderizarListaAlumnos(alumnosOrdenados)}
+            `;
+            
+            res.end(generarHTML('Escuela - Inicio', contenido));
+            return;
+        }
 
-    // Ruta para buscar por asignatura
-    if (path.length === 1) {
-      const asignatura = decodeURIComponent(path[0]);
-      const alumnosAsignatura = datos.alumnos.filter(a => 
-        a.asignatura === asignatura
-      );
-      res.end(JSON.stringify(alumnosAsignatura, null, 2));
-      return;
-    }
+        if (path.length === 1) {
+            const asignatura = decodeURIComponent(path[0]);
+            const alumnosAsignatura = datos.alumnos.filter(a => 
+                a.asignatura === asignatura
+            );
+            
+            const contenido = `
+                <h2>Alumnos de ${asignatura}</h2>
+                ${renderizarListaAlumnos(alumnosAsignatura)}
+            `;
+            
+            res.end(generarHTML(`Escuela - ${asignatura}`, contenido));
+            return;
+        }
 
-    // Ruta para buscar alumno específico
-    if (path.length === 2) {
-      const nombre = decodeURIComponent(path[0]);
-      const apellido = decodeURIComponent(path[1]);
-      const alumno = datos.alumnos.find(a => 
-        a.nombre === nombre && 
-        a.apellido === apellido
-      );
+        if (path.length === 2) {
+            const nombre = decodeURIComponent(path[0]);
+            const apellido = decodeURIComponent(path[1]);
+            // Usamos filter para obtener todas las coincidencias
+            const alumnosEncontrados = datos.alumnos.filter(a => 
+                a.nombre === nombre && 
+                a.apellido === apellido
+            );
 
-      if (alumno) {
-        res.end(JSON.stringify(alumno, null, 2));
-      } else {
+            if (alumnosEncontrados.length > 0) {
+                const contenido = `
+                    <h2>Detalles del Alumno <br>${nombre} ${apellido}</h2>
+                    ${renderizarListaAlumnos(alumnosEncontrados)}
+                `;
+                res.end(generarHTML(`Alumno - ${nombre} ${apellido}`, contenido));
+            } else {
+                res.statusCode = 404;
+                res.end(generarHTML('Error 404', '<h2>No tenemos matriculado a ese alumno</h2>'));
+            }
+            return;
+        }
+
         res.statusCode = 404;
-        res.end(JSON.stringify({ mensaje: "No tenemos matriculado a ese alumno" }));
-      }
-      return;
+        res.end(generarHTML('Error 404', '<h2>Ruta no válida</h2>'));
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.statusCode = 500;
+        res.end(generarHTML('Error 500', '<h2>Error interno del servidor</h2>'));
     }
-
-    res.statusCode = 404;
-    res.end(JSON.stringify({ mensaje: "Ruta no válida" }));
-
-  } catch (error) {
-    res.statusCode = 500;
-    res.end(JSON.stringify({ mensaje: "Error interno del servidor" }));
-  }
 });
 
 // Iniciar el servidor en el puerto 4000
